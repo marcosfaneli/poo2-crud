@@ -7,12 +7,33 @@ package aula02.controllers;
 
 import aula02.models.Aluno;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
  * @author marco
  */
 public class CadastroAlunoController {
+    
+    public List<Object[]> carregarDados(){
+        List<Object[]> lista = new ArrayList<>();
+        
+        Aluno model = new Aluno();
+        try{
+            List<Aluno> alunos = model.listar();
+            
+            for(Aluno aluno : alunos){
+                Object[] obj = new Object[]{
+                    aluno.getId(), aluno.getNome(), aluno.getCurso(), aluno.getRA()
+                };
+                lista.add(obj);
+            }
+        }catch(Exception erro){
+            System.out.println(erro.getMessage());
+        }
+        return lista;
+    }
     
     public boolean incluir(String nome, String curso, String RA) throws SQLException{
         Aluno aluno = new Aluno();

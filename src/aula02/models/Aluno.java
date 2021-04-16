@@ -7,7 +7,10 @@ package aula02.models;
 
 import aula02.database.Conexao;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -61,5 +64,26 @@ public class Aluno {
         prepare.setString(3, RA);
         
         return prepare.execute();
+    }
+    
+    public List<Aluno> listar() throws SQLException{
+        
+        List<Aluno> lista = new ArrayList<>();
+        
+        String sql = "SELECT * FROM cadastro.alunos";
+        
+        ResultSet result = Conexao.getConexao().createStatement().executeQuery(sql);
+        
+        while(result.next()){
+            Aluno aluno = new Aluno();
+            aluno.setCurso(result.getString("curso"));
+            aluno.setId(result.getInt("id"));
+            aluno.setNome(result.getString("nome"));
+            aluno.setRA(result.getString("ra"));
+            
+            lista.add(aluno);
+        }
+        
+        return lista;
     }
 }

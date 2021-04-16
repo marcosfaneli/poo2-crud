@@ -3,10 +3,14 @@ package aula02.views;
 import aula02.controllers.CadastroAlunoController;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 public class CadastroAlunoView extends AbstractView {
     
@@ -23,12 +27,41 @@ public class CadastroAlunoView extends AbstractView {
     private JButton btnAtualizar;
     private JButton btnExcluir;
     
+    private JTable tabela;
+    private DefaultTableModel dadosModel;
+    
     private CadastroAlunoController controller = new CadastroAlunoController();
 
     @Override
     public void criarComponentesDaTela() {
         criarCampoTexto();
         criarBotoes();
+        criarTable();
+        carregarDados();
+    }
+    
+    private void criarTable(){
+        dadosModel = new DefaultTableModel();
+        tabela = new JTable(dadosModel);
+        
+        dadosModel.addColumn("Id");
+        dadosModel.addColumn("Nome");
+        dadosModel.addColumn("Curso");
+        dadosModel.addColumn("RA");
+        
+        JScrollPane scroll = new JScrollPane(tabela);
+        scroll.setBounds(10,160,760,300);
+        add(scroll);
+    }
+    
+    private void carregarDados(){
+        dadosModel.setNumRows(0);
+        
+        List<Object[]> dados = controller.carregarDados();
+        
+        for(Object[] obj : dados){
+            dadosModel.addRow(obj);
+        }
     }
     
     private void criarBotoes(){
@@ -38,8 +71,12 @@ public class CadastroAlunoView extends AbstractView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try{
-                    controller.incluir(txtNome.getText(), txtCurso.getText(), txtRA.getText());
-                    JOptionPane.showMessageDialog(rootPane, "Usuário salvo com sucesso");
+                    if(validarCampos() == true){
+                        controller.incluir(txtNome.getText(), txtCurso.getText(), txtRA.getText());
+                        carregarDados();
+                        limpar();
+                        JOptionPane.showMessageDialog(rootPane, "Usuário salvo com sucesso");
+                    }
                 }catch(Exception ex){
                     JOptionPane.showMessageDialog(rootPane, "Ocorreu um erro ao salvar o aluno.");
                 }
@@ -54,6 +91,20 @@ public class CadastroAlunoView extends AbstractView {
         btnExcluir = new JButton("Excluir");
         btnExcluir.setBounds(230, 100, 100, 30);
         add(btnExcluir);
+    }
+    
+    private void limpar(){
+        txtNome.setText("");
+        txtCurso.setText("");
+        txtRA.setText("");
+    }
+    
+    private boolean validarCampos(){
+        if(txtNome.getText().isEmpty() || txtCurso.getText().isEmpty() || txtRA.getText().isEmpty()){
+            JOptionPane.showMessageDialog(rootPane, "Todos o campo são obrigatórios");
+            return false;
+        }
+        return true;
     }
     
     private void criarCampoTexto(){
