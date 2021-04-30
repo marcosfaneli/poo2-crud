@@ -44,11 +44,18 @@ public class CadastroAlunoController {
         return aluno.incluir();
     }
     
-    public boolean atualizar(){
-        return true;
+    public boolean atualizar(String nome, String curso, String RA, int id) throws SQLException{
+        Aluno aluno = new Aluno();
+        
+        aluno.setNome(nome);
+        aluno.setCurso(curso);
+        aluno.setRA(RA);
+        aluno.setId(id);
+        
+        return aluno.atualizar(id);
     }
     
-    public boolean excluir(){
-        return true;
+    public boolean excluir(int id) throws SQLException {
+        return new Aluno().excluir(id);
     }
 }

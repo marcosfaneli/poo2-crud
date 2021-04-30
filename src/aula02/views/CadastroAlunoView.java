@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 public class CadastroAlunoView extends AbstractView {
@@ -22,6 +24,9 @@ public class CadastroAlunoView extends AbstractView {
     
     private JLabel lblRA;
     private JTextField txtRA;
+    
+    private JLabel lblCodigo;
+    private JTextField txtCodigo;
     
     private JButton btnIncluir;
     private JButton btnAtualizar;
@@ -44,6 +49,13 @@ public class CadastroAlunoView extends AbstractView {
         dadosModel = new DefaultTableModel();
         tabela = new JTable(dadosModel);
         
+        tabela.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                carregarRegistro();
+            }
+        });
+        
         dadosModel.addColumn("Id");
         dadosModel.addColumn("Nome");
         dadosModel.addColumn("Curso");
@@ -54,8 +66,16 @@ public class CadastroAlunoView extends AbstractView {
         add(scroll);
     }
     
+    private void carregarRegistro(){
+        txtNome.setText(tabela.getValueAt(tabela.getSelectedRow(), 1).toString());
+        txtCurso.setText(tabela.getValueAt(tabela.getSelectedRow(), 2).toString());
+        txtRA.setText(tabela.getValueAt(tabela.getSelectedRow(), 3).toString());
+        txtCodigo.setText(tabela.getValueAt(tabela.getSelectedRow(), 0).toString());
+    }
+    
     private void carregarDados(){
-        dadosModel.setNumRows(0);
+        DefaultTableModel dm = (DefaultTableModel) tabela.getModel();
+        dm.setRowCount(0);
         
         List<Object[]> dados = controller.carregarDados();
         
@@ -86,17 +106,70 @@ public class CadastroAlunoView extends AbstractView {
         
         btnAtualizar = new JButton("Atualizar");
         btnAtualizar.setBounds(120, 100, 100, 30);
+        btnAtualizar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                atualizar();
+            }
+        });
         add(btnAtualizar);
         
         btnExcluir = new JButton("Excluir");
         btnExcluir.setBounds(230, 100, 100, 30);
+        btnExcluir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                excluir();
+            }
+        });
         add(btnExcluir);
+    }
+    
+    private void atualizar(){
+        int resposta = JOptionPane.showConfirmDialog(rootPane, "Deseja realmente atualizar os dados do aluno?"
+                        ,"Confirmação"
+                        ,JOptionPane.YES_NO_OPTION);
+                
+        if(resposta == JOptionPane.YES_OPTION){
+            int id = Integer.parseInt(txtCodigo.getText());
+            
+            try{
+                if(validarCampos() == true){
+                    controller.atualizar(txtNome.getText(), txtCurso.getText(), txtRA.getText(), id);
+                    carregarDados();
+                    JOptionPane.showMessageDialog(rootPane, "Registro atualizado com sucesso.");
+                }
+            }catch(Exception erro){
+                erro.printStackTrace();
+                JOptionPane.showMessageDialog(rootPane, "Não foi possível atualizar o registro");
+            }
+        }
+    }
+    
+    private void excluir(){
+        int resposta = JOptionPane.showConfirmDialog(rootPane, "Deseja realmente excluir este aluno?"
+                        ,"Confirmação"
+                        ,JOptionPane.YES_NO_OPTION);
+                
+        if(resposta == JOptionPane.YES_OPTION){
+            int id = Integer.parseInt(txtCodigo.getText());
+            
+            try{
+                controller.excluir(id);
+                carregarDados();
+                JOptionPane.showMessageDialog(rootPane, "Registro excluído com sucesso.");
+            }catch(Exception erro){
+                erro.printStackTrace();
+                JOptionPane.showMessageDialog(rootPane, "Não foi possível excluir o registro");
+            }
+        }
     }
     
     private void limpar(){
         txtNome.setText("");
         txtCurso.setText("");
         txtRA.setText("");
+        txtCodigo.setText("");
     }
     
     private boolean validarCampos(){
@@ -108,6 +181,15 @@ public class CadastroAlunoView extends AbstractView {
     }
     
     private void criarCampoTexto(){
+        lblCodigo = new JLabel("Código");
+        lblCodigo.setBounds(670, 10, 50, 20);
+        add(lblCodigo);
+        
+        txtCodigo = new JTextField();
+        txtCodigo.setBounds(720, 10, 50, 20);
+        txtCodigo.setEditable(false);
+        add(txtCodigo);
+        
         lblNome = new JLabel("Nome");
         lblNome.setBounds(10, 10, 50, 20);
         add(lblNome);

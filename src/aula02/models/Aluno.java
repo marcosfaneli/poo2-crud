@@ -86,4 +86,26 @@ public class Aluno {
         
         return lista;
     }
+    
+    public boolean excluir(int id) throws SQLException{
+        String sql = "DELETE FROM alunos WHERE id = ?";
+        
+        PreparedStatement pst = Conexao.getConexao().prepareStatement(sql);
+        pst.setInt(1, id);
+        
+        return pst.execute();
+    }
+    
+    public boolean atualizar(int id) throws SQLException{
+        String sql = "UPDATE alunos SET nome = ?, curso = ?, ra = ? WHERE id = ?";
+        
+        PreparedStatement pst = Conexao.getConexao().prepareStatement(sql);
+        
+        pst.setString(1, nome);
+        pst.setString(2, curso);
+        pst.setString(3, RA);
+        pst.setInt(4, id);
+        
+        return pst.execute();
+    }
 }
